@@ -1,19 +1,19 @@
-var test1 = [{
-		a: 1
-	},
-	{
-		a: 3
-	},
-	{
-		a: 2
-	}
-];
+// var test1 = [{
+// 		a: 1
+// 	},
+// 	{
+// 		a: 3
+// 	},
+// 	{
+// 		a: 2
+// 	}
+// ];
 
-var test2 = {
-	a: 1,
-	b: 2,
-	c: 3
-}
+// var test2 = {
+// 	a: 1,
+// 	b: 2,
+// 	c: 3
+// }
 // // 把数组对象按照某个属性进行排序
 // console.log(test1.sort(neo.objSort("a",-1)));    //升序
 // console.log(test1.sort(neo.objSort("a",1)));    //降序
@@ -33,15 +33,23 @@ var test2 = {
 
 
 
-var test3=[
-	{id:1,parentId:2,title:"123"},
-	{id:2,parentId:0,title:"456"},
-	{id:3,parentId:0,title:"789"}
-];
-var f={
-	id: 'id',
-	name: 'title',
-	parentId: 'parentId',
-	rootId:0
-}
-console.log(neo.format_tree_data(test3,f));
+// var test3=[
+// 	{id:1,parentId:2,title:"123"},
+// 	{id:2,parentId:0,title:"456"},
+// 	{id:3,parentId:0,title:"789"}
+// ];
+// var f={
+// 	id: 'id',
+// 	name: 'title',
+// 	parentId: 'parentId',
+// 	rootId:0
+// }
+// console.log(neo.format_tree_data(test3,f));
+
+
+var test4 = neo.UTFTranslate.Change('你好');
+console.log(test4);
+
+var test5 = neo.UTFTranslate.ReChange('&#x4F60;&#x597D;');
+console.log(test5);
+

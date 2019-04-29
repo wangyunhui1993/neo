@@ -93,9 +93,11 @@ const neo = {
 		}
 		return obj[key];
 	},
-	/* 获取url单个查询串的值
-	 * 调用方式：neo.getSearchString(time, "yyyy-MM-dd hh:mm:ss")
-	 */
+	/* 
+	* 格式化时间
+	* 	获取url单个查询串的值
+	* 调用方式：neo.getSearchString(time, "yyyy-MM-dd hh:mm:ss")
+	*/
 	format_time: function(time, fmt) {
 		Date.prototype.Format = function(fmt) {
 			var o = {
@@ -198,6 +200,14 @@ const neo = {
 			}
 		}
 		return tree;
+	},
+	/* 校验金钱正则 */
+	checkMoney:function(money){
+		let reg = /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/;
+		if(!reg.test(bailPayMoney)){
+			return false;
+		}
+		return true;
 	},
 	/* 判断是否为空 */
 	empty_fun: function(obj) {
@@ -321,6 +331,156 @@ const neo = {
 		nRegExp = new RegExp(charReg, "g");
 		return str.replace(nRegExp, newChar);
 	},
+	/* 
+		判断一个字符串是否为日期（时间）格式
+	 */
+	isDate:function(date){
+		//isNaN(data)排除data为纯数字的情况（此处不考虑只有年份的日期，如‘2018’）
+		if(isNaN(date)&&!isNaN(Date.parse(date))){
+　　		return true;
+		}return false;
+	},
+	
+
+	//导出表格（可以导出多级表头和单元格合并，支持IE和主流浏览器）
+	/*
+	tableid：表格的ID
+	filename：导出文件的名字
+	 * */
+	HtmlExportToExcel(tableid, filename) {
+		if (getExplorer() == 'ie' || getExplorer() == undefined) {
+			HtmlExportToExcelForIE(tableid, filename);
+		} else {
+			HtmlExportToExcelForEntire(tableid, filename)
+		}
+		//IE浏览器导出Excel
+		var HtmlExportToExcelForIE = function(tableid, filename) {
+			try {
+				var curTbl = document.getElementById(tableid);
+				var oXL;
+				try {
+					oXL = new ActiveXObject("Excel.Application"); //创建AX对象excel  
+				} catch (e) {
+					alert("无法启动Excel!\n\n如果您确信您的电脑中已经安装了Excel，" + "那么请调整IE的安全级别。\n\n具体操作：\n\n" +
+						"工具 → Internet选项 → 安全 → 自定义级别 → 对没有标记为安全的ActiveX进行初始化和脚本运行 → 启用");
+					return false;
+				}
+				var oWB = oXL.Workbooks.Add(); //获取workbook对象  
+				var oSheet = oWB.ActiveSheet; //激活当前sheet  
+				var sel = document.body.createTextRange();
+				sel.moveToElementText(curTbl); //把表格中的内容移到TextRange中  
+				try {
+					sel.select(); //全选TextRange中内容  
+				} catch (e1) {
+					e1.description
+				}
+				sel.execCommand("Copy"); //复制TextRange中内容  
+				oSheet.Paste(); //粘贴到活动的EXCEL中  
+				oXL.Visible = true; //设置excel可见属性  
+				var fname = oXL.Application.GetSaveAsFilename(filename + ".xls", "Excel Spreadsheets (*.xls), *.xls");
+				oWB.SaveAs(fname);
+				oWB.Close();
+				oXL.Quit();
+
+			} catch (e) {
+				alert(e.description);
+			}
+		}
+		//非IE浏览器导出Excel
+		var HtmlExportToExcelForEntire = (function() {
+			var uri = 'data:application/vnd.ms-excel;base64,',
+				template =
+				'<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>',
+				base64 = function(s) {
+					return window.btoa(unescape(encodeURIComponent(s)))
+				},
+				format = function(s, c) {
+					return s.replace(/{(\w+)}/g, function(m, p) {
+						return c[p];
+					})
+				}
+			return function(table, name) {
+				if (!table.nodeType) {
+					table = document.getElementById(table);
+				}
+				var ctx = {
+					worksheet: name || 'Worksheet',
+					table: table.innerHTML
+				}
+				var alink = document.createElement('a');
+				alink.href = uri + base64(format(template, ctx));
+				alink.download = name + ".xls";
+				alink.style.display = 'none';
+				table.appendChild(alink);
+				alink.click();
+				alink.parentNode.removeChild(alink);
+			}
+		})()
+		var getExplorer = function() {
+			var explorer = window.navigator.userAgent;
+			//ie 
+			if (explorer.indexOf("MSIE") >= 0) {
+				return 'ie';
+			}
+			//firefox 
+			else if (explorer.indexOf("Firefox") >= 0) {
+				return 'Firefox';
+			}
+			//Chrome
+			else if (explorer.indexOf("Chrome") >= 0) {
+				return 'Chrome';
+			}
+			//Opera
+			else if (explorer.indexOf("Opera") >= 0) {
+				return 'Opera';
+			}
+			//Safari
+			else if (explorer.indexOf("Safari") >= 0) {
+				return 'Safari';
+			}
+		}
+	},
+	/* 
+		对汉字进行UTF-8编码和UTF-8解码
+		escape(编码)/unescape(解码):对除ASCII字母、数字、标点符号 @  *  _  +  -  .  / 以外的其他字符进行编码
+		eg:UTFTranslate.Change('你好')
+		res:'&#x4F60;&#x597D;'
+		
+		eg:UTFTranslate.ReChange('&#x4F60;&#x597D;')
+		res:'你好'
+	*/
+	UTFTranslate : {
+		// 对汉字进行编码
+		Change: function(pValue) {
+			return pValue.replace(/[^\u0000-\u00FF]/g, function($0) {
+				return escape($0).replace(/(%u)(\w{4})/gi, "&#x$2;")
+			});
+		},
+		// 对汉字进行解码
+		ReChange: function(pValue) {
+			return unescape(pValue.replace(/&#x/g, '%u').replace(/\\u/g, '%u').replace(/;/g, ''));
+		}
+	},
+	
+	/* 
+	 优雅的取整
+		var a = ~~2.33
+		var b= 2.33 | 0
+		var c= 2.33 >> 0
+	 */
+	
+	/* 最佳的让两个整数交换数值
+		a ^= b;
+		b ^= a;
+		a ^= b;
+	 */
+	
+	
+	
+	
+	
+
+
 
 
 
