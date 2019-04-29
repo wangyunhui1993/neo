@@ -201,6 +201,12 @@ const neo = {
 		}
 		return tree;
 	},
+	/* 获取地址栏参数 */
+	GetQueryString:function(name){
+		var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+      var r = window.location.search.substr(1).match(reg);
+      if(r!=null)return  unescape(r[2]); return null;
+	},
 	/* 校验金钱正则 */
 	checkMoney:function(money){
 		let reg = /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/;
@@ -209,6 +215,14 @@ const neo = {
 		}
 		return true;
 	},
+	/*  判断是否对象*/
+	isObj:function (obj){
+     if(typeof obj=="object"){
+         return true;
+     }else{
+         return false;
+     }
+ },
 	/* 判断是否为空 */
 	empty_fun: function(obj) {
 		var obj = obj;
@@ -248,6 +262,12 @@ const neo = {
 		var patrn = /^[a-zA-Z0-9 ]{3,12}$/;
 		if (!patrn.exec(s)) return false
 		return true
+	},
+	/* 校验ip地址 */
+	isIP:function(ip){
+		var patrn=/^[0-9.]{1,20}$/; 
+    if (!patrn.exec(ip)) return false 
+    return true 
 	},
 	//去除空格:默认去除前后空格
 	/*type，默认为2(1~4)
@@ -474,6 +494,77 @@ const neo = {
 		b ^= a;
 		a ^= b;
 	 */
+	
+	/* 日期函数列表:
+		dateObj.getTime()得到时间,
+		dateObj.getYear()得到年份,
+		dateObj.getFullYear()得到四位的年份,
+		dateObj.getMonth()得到月份,
+		dateObj.getDate()得到日,
+		dateObj.getDay()得到日期几,
+		dateObj.getHours()得到小时,
+		dateObj.getMinutes()得到分,
+		dateObj.getSeconds()得到秒,
+		dateObj.setTime(value)设置时间,
+		dateObj.setYear(val)设置年,
+		dateObj.setMonth(val)设置月,
+		dateObj.setDate(val)设置日,
+		dateObj.setDay(val)设置星期几,
+		dateObj.setHours设置小时,
+		dateObj.setMinutes(val)设置分,
+		dateObj.setSeconds(val)设置秒 [注意:此日期时间从0开始计]
+	 */
+	
+	
+	/**
+ * 返回浏览器版本
+ * 
+ * 返回一个对象,对象属性：type，version
+ */
+ getExplorerInfo:function () {
+    var explorer = window.navigator.userAgent.toLowerCase();
+    // ie
+    if (explorer.indexOf("msie") >= 0) {
+        var ver = explorer.match(/msie ([\d.]+)/)[1];
+        return {
+            type : "IE",
+            version : ver
+        };
+    }
+    // firefox
+    else if (explorer.indexOf("firefox") >= 0) {
+        var ver = explorer.match(/firefox\/([\d.]+)/)[1];
+        return {
+            type : "Firefox",
+            version : ver
+        };
+    }
+    // Chrome
+    else if (explorer.indexOf("chrome") >= 0) {
+        var ver = explorer.match(/chrome\/([\d.]+)/)[1];
+        return {
+            type : "Chrome",
+            version : ver
+        };
+    }
+    // Opera
+    else if (explorer.indexOf("opera") >= 0) {
+        var ver = explorer.match(/opera.([\d.]+)/)[1];
+        return {
+            type : "Opera",
+            version : ver
+        };
+    }
+    // Safari
+    else if (explorer.indexOf("Safari") >= 0) {
+        var ver = explorer.match(/version\/([\d.]+)/)[1];
+        return {
+            type : "Safari",
+            version : ver
+        };
+    }
+},
+
 	
 	
 	
